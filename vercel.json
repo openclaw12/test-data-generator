@@ -1,0 +1,14 @@
+{
+  "buildCommand": "cd frontend && npm install --legacy-peer-deps && npm run build",
+  "outputDirectory": "frontend/build",
+  "framework": "react",
+  "projectSettings": {
+    "sourceFilesOutsideRootDirectory": true
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
