@@ -15,13 +15,34 @@ export function Auth({ onLogin }) {
     setLoading(true);
     setError('');
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError('Please enter a valid email address');
+      setLoading(false);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      setLoading(false);
+      return;
+    }
+
+    if (!isLogin && name.trim().length < 2) {
+      setError('Name must be at least 2 characters');
+      setLoading(false);
+      return;
+    }
+
+    const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
     const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
     const body = isLogin
       ? { email, password }
       : { email, password, name };
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}${endpoint}`, {
+      const response = await fetch(`${apiUrl}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body)
@@ -35,7 +56,11 @@ export function Auth({ onLogin }) {
 
       onLogin(data.user, data.token);
     } catch (err) {
-      setError(err.message);
+      if (err.message.includes('Failed to fetch') || err.message.includes('NetworkError')) {
+        setError('Backend server not responding. Complete the deployment in FINISH_DEPLOYMENT.md');
+      } else {
+        setError(err.message);
+      }
     } finally {
       setLoading(false);
     }
